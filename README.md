@@ -1,4 +1,4 @@
-# The Poeple of Star Wars
+# The People of Star Wars
 
 This application will allow you search through and view all the people from the Star Wars unviverse
 
