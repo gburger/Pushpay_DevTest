@@ -36,14 +36,14 @@ I did my best to keep the api data interface as minimal and dynamic as possible.
 
 ## Timeline
 
-6/18 - 6/21 Project received, on vacation unable to start
-6/22 - 6/24 Brushing up on JavaScript, learning React
-6/25 Design general layout
-6/26 Build out Person cards
-6/27 Build out api interface
-6/29 Build out search functionality
-6/30 Traveling, no work
-7/1 Finshing touches, bug fixes
+* 6/18 - 6/21 Project received, on vacation unable to start
+* 6/22 - 6/24 Brushing up on JavaScript, learning React
+* 6/25 Design general layout
+* 6/26 Build out Person cards
+* 6/27 Build out api interface
+* 6/29 Build out search functionality
+* 6/30 Traveling, no work
+* 7/1 Finshing touches, bug fixes
 
 ## Additional Comments
 
