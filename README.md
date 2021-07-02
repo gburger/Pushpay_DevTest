@@ -51,4 +51,4 @@ This was the first time I have used React and the first time I've used JavaScrip
 
 There are definitely areas of this application that need a lot of work. The api interface is very slow and needs some serious optimization. There are several things on the front end that need fixing such as the background. Additionally, I did not have enough time to build out any testing which is an essential part of application health.
 
-Thank you for taking the time to review my work, and I look forward to hearing from you
+Thank you for taking the time to review my work, and I look forward to hearing from you.
