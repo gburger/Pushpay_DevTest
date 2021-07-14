@@ -1,60 +1,38 @@
-import React, { useState } from "react";
+import React from "react";
+import { Accordion, Card } from "react-bootstrap";
+import { getPersonInfo } from "../../api";
 import { PersonType } from "../../types";
+import PersonBody from "../PersonBody";
 
-import { Accordion } from "react-bootstrap";
-import { Card } from "react-bootstrap";
-import { Col } from "react-bootstrap";
-import { Row } from "react-bootstrap";
-
-interface PersonProps {
+interface props {
   person: PersonType;
 }
 
-function Person({ person }: PersonProps) {
-  return (
-    <div>
-      <Card>
-        <Accordion.Toggle as={Card.Header} eventKey={person.name}>
-          {person.name}
-        </Accordion.Toggle>
-        <Accordion.Collapse eventKey={person.name}>
-          <Card.Body>
-            <Row>
-              <Col>
-                <Row>
-                  Height: {person.height} cm <br />
-                </Row>
+function Person({ person }: props) {
+  const [personInfo, setPerson] = React.useState<PersonType>();
 
-                <Row>
-                  Weight: {person.mass} kg <br />
-                </Row>
-                <Row>
-                  Species: {person.species} <br />
-                </Row>
-                <Row>
-                  Birth Year: {person.birth_year} <br />
-                </Row>
-                <Row>
-                  Homeworld: {person.homeworld} <br />
-                </Row>
-                <Row>
-                  Apearned in:{" "}
-                  <ul className="m-2">
-                    {person.films.map((films) => (
-                      <li>{films} </li>
-                    ))}
-                  </ul>
-                </Row>
-              </Col>
-              <Col>
-                <img src={`../img/${person.name.replace(/\s/g, "")}.png`}></img>
-              </Col>
-            </Row>
-          </Card.Body>
-        </Accordion.Collapse>
-      </Card>
-    </div>
+  React.useEffect(() => {
+    (async () => {
+      await getPersonInfo(person).then((result) => setPerson(result));
+    })();
+  }, []);
+
+  return (
+    <Card data-testid={"card" + person.name}>
+      <Accordion.Toggle
+        as={Card.Header}
+        eventKey={person.name}
+        data-testid={"header" + person.name}
+      >
+        {person.name}
+      </Accordion.Toggle>
+      <Accordion.Collapse
+        eventKey={person.name}
+        data-testid={"body" + person.name}
+      >
+        <PersonBody person={person} />
+      </Accordion.Collapse>
+    </Card>
   );
 }
-
 export default Person;
