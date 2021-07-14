@@ -1,5 +1,6 @@
 import { PersonType } from "../types";
 
+//api call funciton
 export async function fetchJson<Response = any>(
   url: string,
   init?: RequestInit
@@ -8,92 +9,70 @@ export async function fetchJson<Response = any>(
     ...(init ?? {}),
     headers: {
       Accept: "application/json",
-      "Content-Type": "application/json",
-    },
+      "Content-Type": "application/json"
+    }
   });
 
   return response.json();
 }
 
-export async function getPerson(id: number) {
-  //create place holder for building new person
-  let person: PersonType;
+//function take a swapi page number and retruns the page of people and the address of the next page
+export async function getPeoplePage(pagenum: number) {
+  const response = await fetchJson<{ results: PersonType[]; next: string }>(
+    "people/?page=" + pagenum
+  );
+  return { people: response.results, nextPage: response.next };
+}
 
-  person = {
-    name: "",
-    height: "",
-    mass: "",
-    birth_year: "",
-    homeworld: "",
-    species: "",
-    films: [""],
-  };
-  //grab person
-  await fetchJson<{
-    name: string;
-    height: string;
-    mass: string;
-    birth_year: string;
-    homeworld: string;
-    films: string[];
-    species: string;
-  }>("people/" + id)
-    //assign person values from api
-    .then((Response) => {
-      person.name = Response.name;
-      person.height = Response.height;
-      person.mass = Response.mass;
-      person.birth_year = Response.birth_year;
-      person.homeworld = Response.homeworld;
-      person.species = Response.species;
-      person.films = Response.films;
-    })
-    //if person missing kick log
-    .catch(() => {
-      console.log("Person id " + id + " missing");
-      return;
-    })
-    //swapi leaves species empty if human otherwise grab the species name from swapi
-    .then(() => {
-      if (person.species.length === 0) {
-        person.species = "Human";
-      } else {
-        let url = person.species[0].substring("https://swapi.dev/api/".length);
-        fetchJson<{ name: string }>(url).then((Response) => {
-          person.species = Response.name;
-        });
-      }
-    })
-    .catch(() => {
-      console.log("Person id " + id + " species missing");
-      return;
-    })
-    //grab homeworld name from swapi
-    .then(() => {
-      let url = person.homeworld.substring("https://swapi.dev/api/".length);
-      fetchJson<{ name: string }>(url).then((Response) => {
-        person.homeworld = Response.name;
-      });
-    })
-    .catch(() => {
-      console.log("Person id " + id + " homeworld missing");
-      return;
-    })
-    //grab the list of films from swapi
-    .then(() => {
-      for (let i = 0; i < person.films.length; i++) {
-        let url = person.films[i].substring("https://swapi.dev/api/".length);
-        (async () => {
-          await fetchJson<{ title: string }>(url).then((Response) => {
-            person.films[i] = Response.title;
-          });
-        })();
-      }
-    })
-    .catch(() => {
-      console.log("Person id " + id + " Films missing");
-      return;
-    });
+//funntion gets all pages of people from swapi and returns an array of people
+export async function buildPeopleList() {
+  let page = await getPeoplePage(1);
+  let i = 2;
+  //get next people page if there is one
+  while (page.nextPage !== null) {
+    let tempPage = await getPeoplePage(i);
+    page.people = page.people.concat(tempPage.people);
+    page.nextPage = tempPage.nextPage;
 
+    i++;
+  }
+
+  //set the addInfo param for all people in list
+  for (let x = 0; x < page.people.length; x++) {
+    page.people[x].addInfo = false;
+  }
+
+  console.log("load complete");
+  return page.people;
+}
+
+//function takes person and retrieves the additional information, returns person with info
+export async function getPersonInfo(person: PersonType) {
+  //if the person has already had the additional info added return
+  if (person.addInfo) {
+    return person;
+  }
+  //swapi has no species if species is human
+  if (person.species.length === 0) {
+    person.species = "Human";
+  } else {
+    const species = await fetchJson<{ name: string }>(
+      person.species[0].substring("https://swapi.dev/api/".length)
+    );
+    person.species = species.name;
+  }
+  const homeworld = await fetchJson<{ name: string }>(
+    person.homeworld.substring("https://swapi.dev/api/".length)
+  );
+  person.homeworld = homeworld.name;
+
+  for (let i = 0; i < person.films.length; i++) {
+    const film = await fetchJson<{ title: string }>(
+      person.films[i].substring("https://swapi.dev/api/".length)
+    );
+    person.films[i] = film.title;
+  }
+
+  person.addInfo = true;
   return person;
 }
